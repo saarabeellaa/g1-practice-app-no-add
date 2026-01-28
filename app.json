@@ -1,19 +1,17 @@
 {
   "expo": {
-    "name": "G1 Practice app",
+    "name": "G1 Practice",
     "slug": "g1-app-no-ad",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.g1practice.app"
@@ -29,6 +27,8 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "sdkVersion": "54.0.0",
+    "platforms": ["ios", "android"],
     "extra": {
       "eas": {
         "projectId": "7cccd009-4d95-4981-bdac-e6d54c8706a2"
