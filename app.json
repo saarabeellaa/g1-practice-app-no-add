@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "G1 Practice",
+    "name": "G1 Practice app",
     "slug": "g1-app-no-ad",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,7 +31,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "g1-app-no-ad"
+        "projectId": "7cccd009-4d95-4981-bdac-e6d54c8706a2"
       }
     }
   }
