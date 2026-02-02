@@ -5,6 +5,8 @@ import { styles } from '../../styles/styles';
 import { supabase } from '../../supabase';
 import { useUserId } from '../../context/UserContext';
 import { CircularProgress } from '../Guide/CircularProgress';
+import { useInterstitialAd } from '../../hooks/useInterstitialAd';
+import { getInterstitialTestResultId } from '../../config/adConfig';
 
 export function TestSessionScreen({ route, navigation }) {
   const { test } = route.params;
@@ -15,6 +17,9 @@ export function TestSessionScreen({ route, navigation }) {
   const [showResults, setShowResults] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [resultsSaved, setResultsSaved] = React.useState(false);
+
+  // Initialize interstitial ad for showing before results
+  const { showAd, loaded } = useInterstitialAd(getInterstitialTestResultId());
 
   // ALL HOOKS MUST BE CALLED HERE - BEFORE ANY EARLY RETURNS
   React.useEffect(() => {
@@ -92,7 +97,12 @@ export function TestSessionScreen({ route, navigation }) {
       if (current + 1 < total) {
         setCurrent((c) => c + 1);
       } else {
-        setShowResults(true);
+        // Show interstitial ad before showing results
+        console.log('Test completed, showing interstitial ad...');
+        showAd(() => {
+          console.log('Ad closed, showing results');
+          setShowResults(true);
+        });
       }
     }, 400);
   };
