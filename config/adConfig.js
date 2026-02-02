@@ -12,7 +12,7 @@ export const AdConfig = {
 };
 
 // Set to false when you want to use real ads
-export const USE_TEST_ADS = true; // Change to false for production
+export const USE_TEST_ADS = false; // Change to false for production
 
 export function getBannerId() {
   return USE_TEST_ADS ? AdConfig.testBannerId : AdConfig.bannerId;
