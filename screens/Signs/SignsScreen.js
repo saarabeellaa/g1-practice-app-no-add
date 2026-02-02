@@ -178,15 +178,15 @@ export function SignsScreen({ navigation }) {
             <Text style={styles.performanceNumber}>{progress.new}</Text>
             <Text style={styles.performanceLabel}>New</Text>
           </View>
-          <View style={[styles.performanceCard, { backgroundColor: '#fff3e0' }]}>
+          <View style={[styles.performanceCard, { backgroundColor: '#e3f2fd' }]}>
             <Text style={styles.performanceNumber}>{progress.learning}</Text>
             <Text style={styles.performanceLabel}>Learning</Text>
           </View>
-          <View style={[styles.performanceCard, { backgroundColor: '#f3e5f5' }]}>
+          <View style={[styles.performanceCard, { backgroundColor: '#e3f2fd' }]}>
             <Text style={styles.performanceNumber}>{progress.reviewing}</Text>
             <Text style={styles.performanceLabel}>Reviewing</Text>
           </View>
-          <View style={[styles.performanceCard, { backgroundColor: '#e8f5e9' }]}>
+          <View style={[styles.performanceCard, { backgroundColor: '#e3f2fd' }]}>
             <Text style={styles.performanceNumber}>{progress.mastered}</Text>
             <Text style={styles.performanceLabel}>Mastered</Text>
           </View>
