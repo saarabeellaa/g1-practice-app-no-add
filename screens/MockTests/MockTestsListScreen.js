@@ -7,12 +7,17 @@ import { MockTestsContext } from './MockTestsContext.js';
 import { supabase } from '../../supabase.js';
 import { useUserId } from '../../context/UserContext';
 import { CircularProgress } from '../Guide/CircularProgress';
+import { useInterstitialAd } from '../../hooks/useInterstitialAd';
+import { getInterstitialExtraTestId } from '../../config/adConfig';
 
 export function MockTestsListScreen({ navigation }) {
   const { tests, loadingTests } = React.useContext(MockTestsContext);
   const { userId } = useUserId();
   const [testScores, setTestScores] = React.useState({});
   const [loadingScores, setLoadingScores] = React.useState(false);
+
+  // Initialize interstitial ad for extra tests
+  const { showAd, loaded } = useInterstitialAd(getInterstitialExtraTestId());
 
   // Memoized function to load test scores
   const loadTestScores = React.useCallback(async () => {
@@ -110,6 +115,10 @@ export function MockTestsListScreen({ navigation }) {
             const isPassed = testScore?.passed || false;
             const showCheckmark = hasScore && isPassed;
 
+            // Determine if this is an extra test (tests after the first 3 are "extra")
+            // ADJUST THIS LOGIC based on your actual business rules
+            const isExtraTest = index >= 3;
+
             // Determine performance label
             let performanceLabel = 'Not Attempted';
             let performanceColor = '#999';
@@ -132,6 +141,26 @@ export function MockTestsListScreen({ navigation }) {
 
             return (
               <View key={t.id} style={[styles.mockTestCard, { position: 'relative' }]}>
+                {/* Extra Test Badge */}
+                {isExtraTest && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: 8,
+                      left: 8,
+                      backgroundColor: '#FFA500',
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 4,
+                      zIndex: 10,
+                    }}
+                  >
+                    <Text style={{ color: '#fff', fontSize: 10, fontWeight: 'bold' }}>
+                      PREMIUM
+                    </Text>
+                  </View>
+                )}
+
                 {/* Circular Progress Indicator - Top Right */}
                 {hasScore && (
                   <View
@@ -198,7 +227,19 @@ export function MockTestsListScreen({ navigation }) {
                   </View>
                   <TouchableOpacity 
                     style={styles.startMockTestBtn} 
-                    onPress={() => navigation.navigate('TestSession', { test: t })}
+                    onPress={() => {
+                      if (isExtraTest) {
+                        // Show interstitial ad before starting extra test
+                        console.log('Starting extra test, showing ad...');
+                        showAd(() => {
+                          console.log('Ad closed, navigating to test');
+                          navigation.navigate('TestSession', { test: t });
+                        });
+                      } else {
+                        // No ad for regular tests
+                        navigation.navigate('TestSession', { test: t });
+                      }
+                    }}
                   >
                     <Text style={styles.startMockTestBtnText}>
                       {hasScore ? 'Retake' : 'Start'}
