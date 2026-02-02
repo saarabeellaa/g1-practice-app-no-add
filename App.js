@@ -9,6 +9,8 @@ import { SignsStackScreen } from './screens/Signs/SignsStack';
 import { GuideStackScreen } from './screens/Guide/GuideStack';
 import { MockStackScreen } from './screens/MockTests/MockStack';
 
+
+
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
@@ -31,7 +33,7 @@ function MainTabs() {
           name="Signs" 
           component={SignsStackScreen} 
           options={{
-            tabBarLabel: 'Signs', 
+            tabBarLabel: 'Sign', 
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="road-variant" color={color} size={size} />
             )
@@ -41,7 +43,7 @@ function MainTabs() {
           name="Guide" 
           component={GuideStackScreen} 
           options={{
-            tabBarLabel: 'Guide', 
+            tabBarLabel: 'Study', 
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="book-open-page-variant" color={color} size={size} />
             )
