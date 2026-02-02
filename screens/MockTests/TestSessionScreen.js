@@ -1,21 +1,80 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { styles } from '../../styles/styles';
+import { supabase } from '../../supabase';
+import { useUserId } from '../../context/UserContext';
+import { CircularProgress } from '../Guide/CircularProgress';
 
 export function TestSessionScreen({ route, navigation }) {
   const { test } = route.params;
+  const { userId } = useUserId();
   const [current, setCurrent] = React.useState(0);
   const total = test ? test.questions.length : 0;
   const [answers, setAnswers] = React.useState(Array(total).fill(null));
   const [showResults, setShowResults] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [resultsSaved, setResultsSaved] = React.useState(false);
 
+  // ALL HOOKS MUST BE CALLED HERE - BEFORE ANY EARLY RETURNS
   React.useEffect(() => {
     setCurrent(0);
     setAnswers(Array(total).fill(null));
     setShowResults(false);
+    setResultsSaved(false);
   }, [test, total]);
 
+  // Save test result to database - wrapped in useCallback BEFORE early return
+  const saveTestResult = React.useCallback(async (correctCount, percentage, passed) => {
+    if (!supabase || !userId || !test || !test.id) {
+      console.error('Missing required data for saving result');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      console.log(`💾 Saving test result: ${percentage}%`);
+
+      const { error } = await supabase
+        .from('mock_test_results')
+        .insert({
+          user_id: userId,
+          mock_test_id: test.id,
+          score: percentage,
+          passed: passed,
+          correct_answers: correctCount,
+          total_questions: total,
+          created_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Error saving test result:', error);
+      } else {
+        console.log('✅ Test result saved successfully');
+        setResultsSaved(true);
+      }
+    } catch (err) {
+      console.error('Exception saving test result:', err);
+    } finally {
+      setSaving(false);
+    }
+  }, [userId, test, total]);
+
+  // Save result when test is completed - CALLED BEFORE early return
+  React.useEffect(() => {
+    if (showResults && !resultsSaved && test && test.questions) {
+      const correctCount = answers.reduce((acc, ans, i) => {
+        if (ans === test.questions[i].correct) return acc + 1;
+        return acc;
+      }, 0);
+      const percentage = Math.round((correctCount / total) * 100);
+      const passed = correctCount >= 32;
+      
+      saveTestResult(correctCount, percentage, passed);
+    }
+  }, [showResults, resultsSaved, answers, total, test, saveTestResult]);
+
+  // NOW WE CAN HAVE EARLY RETURNS - ALL HOOKS CALLED ABOVE
   if (!test) {
     return <View style={styles.center}><Text>Test not found.</Text></View>;
   }
@@ -46,40 +105,89 @@ export function TestSessionScreen({ route, navigation }) {
     const percentage = Math.round((correctCount / total) * 100);
     const passed = correctCount >= 32;
 
+    // Determine performance label
+    let performanceLabel = 'Poor';
+    let performanceColor = '#e53935';
+
+    if (percentage >= 80) {
+      performanceLabel = 'Excellent';
+      performanceColor = '#43a047';
+    } else if (percentage >= 50) {
+      performanceLabel = 'Good';
+      performanceColor = '#1976d2';
+    } else if (percentage >= 20) {
+      performanceLabel = 'Needs Improvement';
+      performanceColor = '#FFA500';
+    }
+
     return (
       <ScrollView style={{ flex: 1, backgroundColor: '#fff', padding: 16 }}>
         <View style={{ alignItems: 'center', marginBottom: 20 }}>
-          <MaterialCommunityIcons 
-            name={passed ? "check-circle-outline" : "close-circle-outline"} 
-            size={80} 
-            color={passed ? '#43a047' : '#e53935'} 
-          />
+          {/* Circular Progress with color-coded score */}
+          <View style={{ marginBottom: 20 }}>
+            <CircularProgress
+              percentage={percentage}
+              isCompleted={passed}
+              showCheckmark={passed}
+              size={100}
+              colorScheme="test"
+            />
+          </View>
+
           <Text style={[styles.title, { marginTop: 12 }]}>Test Complete</Text>
-          <Text style={{ fontSize: 32, fontWeight: 'bold', marginTop: 8, color: passed ? '#43a047' : '#e53935' }}>
-            {correctCount} / {total}
+          <Text style={{ fontSize: 20, color: '#666', marginTop: 8 }}>
+            {correctCount} of {total} correct
           </Text>
-          <Text style={{ fontSize: 18, color: '#888', marginTop: 6 }}>
-            {percentage}% - {passed ? '✅ PASSED' : '❌ FAILED'}
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: 'bold',
+              marginTop: 6,
+              color: performanceColor
+            }}
+          >
+            {percentage}% • {performanceLabel}
+          </Text>
+          <Text
+            style={{
+              fontSize: 16,
+              marginTop: 8,
+              color: passed ? '#43a047' : '#e53935'
+            }}
+          >
+            {passed ? '✓ PASSED' : '✗ NOT PASSED'}
           </Text>
           {!passed && (
             <Text style={{ color: '#666', marginTop: 8, textAlign: 'center' }}>
               You need 32+ correct answers to pass (80%)
             </Text>
           )}
-          <View style={{ flexDirection: 'row', marginTop: 20 }}>
+
+          {/* Saving indicator */}
+          {saving && (
+            <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+              <ActivityIndicator size="small" color="#1976d2" />
+              <Text style={{ marginLeft: 8, color: '#666' }}>Saving result...</Text>
+            </View>
+          )}
+
+          <View style={{ flexDirection: 'row', marginTop: 20, width: '100%' }}>
             <TouchableOpacity 
-              style={[styles.startBtn, { marginRight: 8, backgroundColor: '#1976d2', width: '50%' }]} 
+              style={[styles.startBtn, { marginRight: 8, backgroundColor: '#1976d2', flex: 1 }]} 
               onPress={() => {
                 setCurrent(0);
                 setAnswers(Array(total).fill(null));
                 setShowResults(false);
+                setResultsSaved(false);
               }}
+              disabled={saving}
             >
               <Text style={styles.startBtnText}>Retry Test</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.startBtn, { marginLeft: 8 , width: '50%' }]} 
+              style={[styles.startBtn, { marginLeft: 8, flex: 1 }]} 
               onPress={() => navigation.popToTop()}
+              disabled={saving}
             >
               <Text style={styles.startBtnText}>Back to Tests</Text>
             </TouchableOpacity>
