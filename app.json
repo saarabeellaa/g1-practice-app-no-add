@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "g1-app-no-ads-",
-    "slug": "snack-20ad2c71-c675-4c95-8d4b-8c3e4422d31e",
-    "version": "1.0.0",
+    "name": "G1 Practice Test",
+    "slug": "g1-practice-test-app",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -13,17 +13,32 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3990448886293370~1905743418"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.saramouloudi.g1practicetest",
+      "config": {
+        "googleMobileAdsAppId": "ca-app-pub-3990448886293370~1905743418"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3990448886293370~1905743418"
+        }
+      ]
+    ]
   }
 }
