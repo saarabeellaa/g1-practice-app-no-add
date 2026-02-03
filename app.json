@@ -39,6 +39,11 @@
           "androidAppId": "ca-app-pub-3990448886293370~1905743418"
         }
       ]
-    ]
+    ],
+        "extra": {
+      "eas": {
+        "projectId": "7cccd009-4d95-4981-bdac-e6d54c8706a2"
+      }
+    }
   }
 }
